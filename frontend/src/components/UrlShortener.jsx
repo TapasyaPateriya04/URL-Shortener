@@ -30,52 +30,68 @@ function UrlShortener() {
     try {
       await navigator.clipboard.writeText(shortUrl);
       setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     } catch {
       setCopied(false);
     }
   };
 
   return (
-    <div className="p-4 max-w-xl mx-auto text-center">
-      <h1 className="text-3xl font-bold mb-6">🔗 Mini URL Shortener</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="url"
-          value={originalUrl}
-          onChange={(e) => setOriginalUrl(e.target.value)}
-          placeholder="Enter your long URL"
-          className="w-full p-3 border rounded shadow-sm"
-          required
-        />
-        <input
-          type="date"
-          value={expiryDate}
-          onChange={(e) => setExpiryDate(e.target.value)}
-          className="w-full p-3 border rounded shadow-sm"
-        />
-        <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-          Shorten URL
-        </button>
-      </form>
+    <div className="min-h-screen bg-gradient-to-br from-sky-100 to-indigo-200 flex items-center justify-center px-4">
+      <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-xl">
+        <h1 className="text-3xl font-bold text-center text-indigo-700 mb-6">🔗 URL Shortener</h1>
 
-      {shortUrl && (
-        <div className="mt-6 p-4 bg-green-100 rounded shadow-sm">
-          <p className="text-green-800 font-semibold">✅ Your shortened URL:</p>
-          <div className="mt-2 flex items-center justify-center gap-2">
-            <a href={shortUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline break-all">
-              {shortUrl}
-            </a>
-            <button
-              onClick={handleCopy}
-              className="bg-gray-200 px-3 py-1 rounded hover:bg-gray-300 text-sm"
-            >
-              {copied ? 'Copied!' : 'Copy'}
-            </button>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input
+            type="url"
+            value={originalUrl}
+            onChange={(e) => setOriginalUrl(e.target.value)}
+            placeholder="Enter your long URL..."
+            required
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+          <input
+            type="date"
+            value={expiryDate}
+            onChange={(e) => setExpiryDate(e.target.value)}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+          <button
+            type="submit"
+            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 px-6 rounded-lg font-semibold transition"
+          >
+            ✂️ Shorten URL
+          </button>
+        </form>
+
+        {shortUrl && (
+          <div className="mt-6 bg-green-50 border border-green-300 rounded-lg p-4">
+            <p className="text-green-700 font-medium">✅ Your shortened URL:</p>
+            <div className="flex items-center justify-between mt-2">
+              <a
+                href={shortUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-700 underline break-all"
+              >
+                {shortUrl}
+              </a>
+              <button
+                onClick={handleCopy}
+                className="text-sm bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1 rounded-lg"
+              >
+                {copied ? '✔️ Copied!' : '📋 Copy'}
+              </button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {error && <p className="mt-4 text-red-500">{error}</p>}
+        {error && (
+          <div className="mt-4 text-red-600 bg-red-100 border border-red-300 p-3 rounded-lg">
+            ❌ {error}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
