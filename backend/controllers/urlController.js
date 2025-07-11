@@ -18,7 +18,9 @@ exports.shortenUrl = async (req, res) => {
 
   try {
     await Url.create({ originalUrl: url, shortCode, expiryDate });
-    return res.status(201).json({ shortUrl });
+    return res.status(201).json({
+       shortUrl,
+       });
   } catch (err) {
     return res.status(500).json({ error: 'Server error' });
   }

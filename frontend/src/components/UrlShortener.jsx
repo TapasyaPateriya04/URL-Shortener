@@ -7,6 +7,8 @@ export default function UrlShortener() {
   const [expiryDate, setExpiryDate] = useState('');
   const [shortUrl, setShortUrl] = useState('');
   const [error, setError] = useState('');
+ 
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -19,6 +21,7 @@ export default function UrlShortener() {
         expiryDate: expiryDate || null,
       });
       setShortUrl(res.data.shortUrl);
+      
     } catch (err) {
       setError(err.response?.data?.error || 'Something went wrong');
     }
@@ -58,6 +61,7 @@ export default function UrlShortener() {
           <p>Shortened URL:</p>
           <a href={shortUrl} target="_blank" rel="noreferrer">{shortUrl}</a>
           <button onClick={handleCopy}>Copy</button>
+          
         </div>
       )}
 

@@ -2,7 +2,7 @@
 
 A full-stack URL shortener app that allows users to shorten long URLs and optionally set an expiry date. Built with:
 
-- **Frontend**: React, Vite, Tailwind CSS, Axios  
+- **Frontend**: React, Vite, Axios  
 - **Backend**: Node.js, Express.js, MongoDB  
 - **Key Features**: URL validation, expiry logic, click tracking, and copyable shortened URL
 
