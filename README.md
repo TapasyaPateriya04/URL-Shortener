@@ -74,8 +74,8 @@ A full-stack URL shortener app that allows users to shorten long URLs and option
 | Frontend       | Backend      | Database   |
 |----------------|--------------|------------|
 | React + Vite   | Express.js   | MongoDB    |
-| Tailwind CSS   | Mongoose     |            |
-| Axios          | valid-url    |            |
+|   Axios        | Mongoose     |            |
+|                | valid-url    |            |
 
 ---
 
