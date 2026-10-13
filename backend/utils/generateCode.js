@@ -1,3 +1,3 @@
 const crypto = require('crypto');
 
-module.exports = () => crypto.randomBytes(3).toString('hex'); // e.g., abc123
+module.exports = () => crypto.randomBytes(6).toString('base64url');
