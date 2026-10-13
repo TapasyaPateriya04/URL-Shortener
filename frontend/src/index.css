@@ -194,21 +194,32 @@ input:focus-visible {
 }
 
 .theme-picker {
+  position: relative;
   display: inline-flex;
-  height: 33px;
-  align-items: center;
-  gap: 7px;
-  padding: 0 9px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--white);
+  height: 35px;
   color: var(--muted-text);
-  transition: border-color 160ms ease, background 180ms ease;
 }
 
-.theme-picker:hover,
-.theme-picker:focus-within {
+.theme-picker-trigger {
+  display: inline-flex;
+  height: 100%;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--white);
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 600;
+  transition: border-color 160ms ease, background 180ms ease, box-shadow 160ms ease;
+}
+
+.theme-picker-trigger:hover,
+.theme-picker-trigger[aria-expanded='true'] {
   border-color: var(--accent);
+  box-shadow: 0 3px 12px rgb(27 38 31 / 6%);
 }
 
 .theme-picker-dot {
@@ -220,25 +231,64 @@ input:focus-visible {
   background: var(--theme-swatch);
 }
 
-.theme-picker select {
-  max-width: 88px;
-  padding: 0;
+.theme-picker-trigger > svg {
+  margin-left: 3px;
+  color: var(--muted-text);
+  transition: transform 180ms ease;
+}
+
+.theme-picker-trigger[aria-expanded='true'] > svg {
+  transform: rotate(180deg);
+}
+
+.theme-menu {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 8px);
+  right: 0;
+  display: grid;
+  width: 184px;
+  gap: 3px;
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--white);
+  box-shadow: 0 14px 38px rgb(25 32 26 / 14%), 0 2px 7px rgb(25 32 26 / 5%);
+  animation: theme-menu-in 150ms both ease-out;
+}
+
+.theme-option {
+  display: flex;
+  width: 100%;
+  min-height: 39px;
+  align-items: center;
+  gap: 10px;
+  padding: 0 10px;
   border: 0;
-  appearance: none;
+  border-radius: 7px;
   background: transparent;
   color: var(--ink);
   cursor: pointer;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 600;
+  text-align: left;
+  transition: background 140ms ease, color 140ms ease;
 }
 
-.theme-picker select:focus-visible {
+.theme-option:hover,
+.theme-option:focus-visible {
   outline: 0;
+  background: var(--accent-soft);
+  color: var(--accent);
 }
 
-.theme-picker > svg {
-  flex: 0 0 auto;
-  pointer-events: none;
+.theme-option[aria-selected='true'] {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.theme-option > svg {
+  margin-left: auto;
 }
 
 .service-status {
@@ -550,6 +600,13 @@ input:focus-visible {
   letter-spacing: -.5px;
 }
 
+.section-description {
+  margin: 4px 0 0;
+  color: var(--muted-text);
+  font-size: 10px;
+  line-height: 1.45;
+}
+
 .shorten-form > label,
 .option-field > label {
   display: flex;
@@ -624,6 +681,13 @@ input:focus-visible {
 
 .date-input-wrap {
   padding-right: 8px;
+}
+
+.field-hint {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted-text);
+  font-size: 9px;
 }
 
 .date-input-wrap input {
@@ -710,7 +774,7 @@ input:focus-visible {
 .stats-card h2 {
   margin: 20px 0 8px;
   font-family: var(--serif);
-  font-size: 31px;
+  font-size: 28px;
   font-weight: 400;
   letter-spacing: -.5px;
   line-height: 1.02;
@@ -748,6 +812,7 @@ input:focus-visible {
 .stats-row span {
   color: #75806e;
   font-size: 9px;
+  letter-spacing: .45px;
 }
 
 .stats-row strong {
@@ -763,6 +828,7 @@ input:focus-visible {
   margin-top: 19px;
   color: #788373;
   font-size: 9px;
+  line-height: 1.55;
 }
 
 .stats-live-dot {
@@ -1201,6 +1267,116 @@ input:focus-visible {
   clip-path: inset(50%);
 }
 
+/* Keep supporting copy comfortable to read beside the display typography. */
+.topbar-link,
+.service-status {
+  font-size: 13px;
+}
+
+.eyebrow,
+.overline {
+  font-size: 10px;
+}
+
+.section-heading .overline {
+  font-size: 9px;
+}
+
+.hero-description {
+  font-size: 16px;
+}
+
+.hero-cta,
+.create-button {
+  font-size: 14px;
+}
+
+.floating-link-copy span {
+  font-size: 8px;
+}
+
+.floating-stat strong {
+  font-size: 14px;
+}
+
+.floating-stat small,
+.field-hint,
+.privacy-note,
+.stats-footnote {
+  font-size: 11px;
+}
+
+.section-heading h2 {
+  font-size: 20px;
+}
+
+.section-description,
+.stats-card > p {
+  font-size: 12px;
+}
+
+.shorten-form > label,
+.option-field > label {
+  font-size: 13px;
+}
+
+.option-field > label span {
+  font-size: 9px;
+}
+
+.input-wrap input,
+.date-input-wrap input {
+  font-size: 13px;
+}
+
+.alias-prefix {
+  font-size: 15px;
+}
+
+.stats-row span {
+  font-size: 10px;
+}
+
+.stats-row strong {
+  font-size: 25px;
+}
+
+.links-heading h2 {
+  font-size: 29px;
+}
+
+.refresh-button,
+.filter-tab,
+.search-wrap input {
+  font-size: 12px;
+}
+
+.filter-count {
+  font-size: 9px;
+}
+
+.short-link {
+  font-size: 14px;
+}
+
+.original-link,
+.link-state {
+  font-size: 11px;
+}
+
+.link-date {
+  font-size: 10px;
+}
+
+.click-count span,
+.footer {
+  font-size: 11px;
+}
+
+.toast {
+  font-size: 13px;
+}
+
 @keyframes rise-in {
   from {
     opacity: 0;
@@ -1252,6 +1428,17 @@ input:focus-visible {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes theme-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
 
@@ -1320,7 +1507,7 @@ input:focus-visible {
   }
 
   .topbar-link {
-    font-size: 11px;
+    font-size: 12px;
   }
 
   .service-status {
@@ -1352,7 +1539,7 @@ input:focus-visible {
   .hero-description {
     max-width: 370px;
     margin: 16px 0 15px;
-    font-size: 13px;
+    font-size: 15px;
   }
 
   .hero-art {
@@ -1402,7 +1589,7 @@ input:focus-visible {
 
   .stats-card h2 {
     margin-top: 13px;
-    font-size: 27px;
+    font-size: 29px;
   }
 
   .stats-card > p {
@@ -1422,7 +1609,7 @@ input:focus-visible {
   }
 
   .links-heading h2 {
-    font-size: 24px;
+    font-size: 25px;
   }
 
   .refresh-button {
@@ -1473,12 +1660,12 @@ input:focus-visible {
   }
 
   .short-link {
-    font-size: 11px;
+    font-size: 13px;
   }
 
   .original-link {
     max-width: 100%;
-    font-size: 8px;
+    font-size: 10px;
   }
 
   .link-meta {
@@ -1490,7 +1677,7 @@ input:focus-visible {
   }
 
   .link-date {
-    font-size: 8px;
+    font-size: 9px;
   }
 
   .click-count {
@@ -1500,7 +1687,7 @@ input:focus-visible {
   }
 
   .click-count strong {
-    font-size: 12px;
+    font-size: 13px;
   }
 
   .link-actions {
@@ -1543,13 +1730,8 @@ input:focus-visible {
     display: none;
   }
 
-  .theme-picker {
-    gap: 5px;
-    padding: 0 7px;
-  }
-
-  .theme-picker select {
-    max-width: 76px;
+  .theme-menu {
+    right: -7px;
   }
 
   .form-options {

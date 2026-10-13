@@ -92,6 +92,9 @@ export default function UrlShortener() {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
   const [theme, setTheme] = useState(readTheme);
+  const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
+  const themePickerRef = useRef(null);
+  const themeTriggerRef = useRef(null);
 
   const commitLinks = useCallback((nextLinks) => {
     linksRef.current = nextLinks;
@@ -173,6 +176,44 @@ export default function UrlShortener() {
     }
   }, [theme]);
 
+  useEffect(() => {
+    if (!isThemeMenuOpen) return undefined;
+
+    const selectedOption = themePickerRef.current?.querySelector('[aria-selected="true"]');
+    selectedOption?.focus();
+
+    function closeOnOutsideClick(event) {
+      if (!themePickerRef.current?.contains(event.target)) {
+        setIsThemeMenuOpen(false);
+      }
+    }
+
+    document.addEventListener('pointerdown', closeOnOutsideClick);
+    return () => document.removeEventListener('pointerdown', closeOnOutsideClick);
+  }, [isThemeMenuOpen]);
+
+  function handleThemeMenuKeyDown(event) {
+    const options = [...themePickerRef.current.querySelectorAll('[role="option"]')];
+    const focusedIndex = options.indexOf(document.activeElement);
+
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      setIsThemeMenuOpen(false);
+      themeTriggerRef.current?.focus();
+      return;
+    }
+
+    let nextIndex;
+    if (event.key === 'ArrowDown') nextIndex = (focusedIndex + 1) % options.length;
+    if (event.key === 'ArrowUp') nextIndex = (focusedIndex - 1 + options.length) % options.length;
+    if (event.key === 'Home') nextIndex = 0;
+    if (event.key === 'End') nextIndex = options.length - 1;
+    if (nextIndex !== undefined) {
+      event.preventDefault();
+      options[nextIndex].focus();
+    }
+  }
+
   const totalClicks = links.reduce((total, link) => total + (Number(link.clickCount) || 0), 0);
   const visibleLinks = links.filter((link) => {
     const status = getLinkStatus(link);
@@ -249,14 +290,56 @@ export default function UrlShortener() {
         </a>
         <div className="topbar-right">
           <a className="topbar-link" href="#your-links">Your links</a>
-          <label className="theme-picker">
-            <span className="theme-picker-dot" style={{ '--theme-swatch': THEMES.find((option) => option.id === theme).color }} />
-            <span className="sr-only">Color theme</span>
-            <select value={theme} onChange={(event) => setTheme(event.target.value)}>
-              {THEMES.map((option) => <option key={option.id} value={option.id}>{option.name}</option>)}
-            </select>
-            <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m7 10 5 5 5-5" /></svg>
-          </label>
+          <div className="theme-picker" ref={themePickerRef}>
+            <button
+              className="theme-picker-trigger"
+              type="button"
+              ref={themeTriggerRef}
+              aria-label={`Color theme: ${THEMES.find((option) => option.id === theme).name}`}
+              aria-haspopup="listbox"
+              aria-expanded={isThemeMenuOpen}
+              aria-controls="theme-options"
+              onClick={() => setIsThemeMenuOpen((isOpen) => !isOpen)}
+              onKeyDown={(event) => {
+                if (event.key === 'ArrowDown' || event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault();
+                  setIsThemeMenuOpen(true);
+                }
+              }}
+            >
+              <span className="theme-picker-dot" style={{ '--theme-swatch': THEMES.find((option) => option.id === theme).color }} />
+              <span>{THEMES.find((option) => option.id === theme).name}</span>
+              <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m7 10 5 5 5-5" /></svg>
+            </button>
+            {isThemeMenuOpen && (
+              <div
+                className="theme-menu"
+                id="theme-options"
+                role="listbox"
+                aria-label="Choose a color theme"
+                onKeyDown={handleThemeMenuKeyDown}
+              >
+                {THEMES.map((option) => (
+                  <button
+                    className="theme-option"
+                    key={option.id}
+                    type="button"
+                    role="option"
+                    aria-selected={theme === option.id}
+                    onClick={() => {
+                      setTheme(option.id);
+                      setIsThemeMenuOpen(false);
+                      themeTriggerRef.current?.focus();
+                    }}
+                  >
+                    <span className="theme-picker-dot" style={{ '--theme-swatch': option.color }} />
+                    <span>{option.name}</span>
+                    {theme === option.id && <Icon name="check" size={15} />}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
           <span className={`service-status ${apiOnline ? 'is-online' : 'is-offline'}`}>
             <span className="status-dot" />
             {apiOnline ? 'All systems go' : 'Service offline'}
@@ -267,13 +350,13 @@ export default function UrlShortener() {
       <main id="top">
         <section className="hero-grid" aria-labelledby="hero-title">
           <div className="hero-copy">
-            <div className="eyebrow"><span className="eyebrow-line" /> THE INTERNET, TIDIED UP</div>
-            <h1 id="hero-title">Good links.<br /><span>Short stories.</span></h1>
+            <div className="eyebrow"><span className="eyebrow-line" /> MAKE EVERY LINK COUNT</div>
+            <h1 id="hero-title">Long links.<br /><span>Less baggage.</span></h1>
             <p className="hero-description">
-              Turn unwieldy URLs into links worth sharing. Keep an eye on every click, all from one little dashboard.
+              Turn long URLs into short, shareable links. Customize your URLs, set expiration dates, and keep track of clicks — all in one simple place.
             </p>
             <a className="hero-cta" href="#create-link">
-              Make your first link <Icon name="arrow" size={16} />
+              Shorten a link <Icon name="arrow" size={16} />
             </a>
           </div>
           <div className="hero-art" aria-hidden="true">
@@ -284,14 +367,14 @@ export default function UrlShortener() {
             <div className="floating-link">
               <div className="floating-link-icon"><Icon name="link" size={19} /></div>
               <div className="floating-link-copy">
-                <span>YOUR NEW FAVORITE LINK</span>
-                <strong>snaplnk.io/hello</strong>
+                <span>SHORT, SIMPLE, SHAREABLE</span>
+                <strong>snaplink.io/my-link</strong>
               </div>
               <span className="floating-link-check"><Icon name="check" size={15} /></span>
             </div>
             <div className="floating-stat">
               <span className="floating-stat-icon"><Icon name="chart" size={16} /></span>
-              <span><strong>+28%</strong><small>more clicks</small></span>
+              <span><strong>On the rise</strong><small>clicks at a glance</small></span>
             </div>
             <div className="hero-orbit-dot" />
           </div>
@@ -302,18 +385,19 @@ export default function UrlShortener() {
             <div className="section-heading">
               <span className="section-icon"><Icon name="wand" size={17} /></span>
               <div>
-                <span className="overline">MAKE IT MEMORABLE</span>
-                <h2>Shorten a link</h2>
+                <span className="overline">LINK CREATION</span>
+                <h2>Make it a short story.</h2>
+                <p className="section-description">Paste a long URL. We&apos;ll make it easier to share.</p>
               </div>
             </div>
             <form className="shorten-form" onSubmit={handleSubmit}>
-              <label htmlFor="url-input">Long URL</label>
+              <label htmlFor="url-input">Destination URL</label>
               <div className="input-wrap url-input-wrap">
                 <Icon name="link" size={17} />
                 <input
                   id="url-input"
                   type="url"
-                  placeholder="https://your-very-long-link.com/goes-here"
+                  placeholder="https://example.com/your/very/long/url"
                   value={url}
                   onChange={(event) => setUrl(event.target.value)}
                   autoComplete="url"
@@ -322,13 +406,13 @@ export default function UrlShortener() {
               </div>
               <div className="form-options">
                 <div className="option-field">
-                  <label htmlFor="alias-input">Custom ending <span>OPTIONAL</span></label>
+                  <label htmlFor="alias-input">Custom alias <span>OPTIONAL</span></label>
                   <div className="input-wrap">
                     <span className="alias-prefix">/</span>
                     <input
                       id="alias-input"
                       type="text"
-                      placeholder="your-own-alias"
+                      placeholder="my-link"
                       value={customCode}
                       onChange={(event) => setCustomCode(event.target.value)}
                       minLength="3"
@@ -339,7 +423,7 @@ export default function UrlShortener() {
                   </div>
                 </div>
                 <div className="option-field">
-                  <label htmlFor="expiry-input">Expires <span>OPTIONAL</span></label>
+                  <label htmlFor="expiry-input">Expiration date <span>OPTIONAL</span></label>
                   <div className="input-wrap date-input-wrap">
                     <input
                       id="expiry-input"
@@ -349,33 +433,34 @@ export default function UrlShortener() {
                       onChange={(event) => setExpiryDate(event.target.value)}
                     />
                   </div>
+                  <span className="field-hint">Choose when your link expires</span>
                 </div>
               </div>
               <button className="create-button" type="submit" disabled={isSubmitting}>
                 {isSubmitting ? <><span className="button-spinner" /> Making your link...</> : <>Create short link <Icon name="arrow" size={17} /></>}
               </button>
-              <p className="privacy-note">Your links and click stats are saved privately in this browser.</p>
+              <p className="privacy-note">Your links are saved in this browser, so they&apos;re ready when you return.</p>
             </form>
           </div>
 
           <aside className="stats-card" aria-label="Your link statistics">
-            <div className="stats-topline"><span className="overline">YOUR LITTLE CORNER</span><span className="stats-spark">✳</span></div>
-            <h2>Every click<br />has a story.</h2>
-            <p>Make a link and see what happens next. Your numbers update whenever you come back.</p>
+            <div className="stats-topline"><span className="overline">STATS SECTION</span><span className="stats-spark">✳</span></div>
+            <h2>Small links.<br />Useful stats.</h2>
+            <p>See how many links you&apos;ve created and how often they&apos;ve been clicked.</p>
             <div className="stats-divider" />
             <div className="stats-row">
-              <div><span>Links made</span><strong>{links.length.toLocaleString()}</strong></div>
-              <div><span>Total clicks</span><strong>{totalClicks.toLocaleString()}</strong></div>
+              <div><span>LINKS CREATED</span><strong>{links.length.toLocaleString()}</strong></div>
+              <div><span>TOTAL CLICKS</span><strong>{totalClicks.toLocaleString()}</strong></div>
             </div>
-            <div className="stats-footnote"><span className="stats-live-dot" /> Stats refresh when you visit</div>
+            <div className="stats-footnote"><span className="stats-live-dot" /> Statistics update as your links are used and your browser records clicks.</div>
           </aside>
         </section>
 
         <section className="links-section" id="your-links" aria-labelledby="links-title">
           <div className="links-heading">
             <div>
-              <span className="overline">YOUR COLLECTION</span>
-              <h2 id="links-title">The good stuff<span className="wordmark-period">.</span></h2>
+              <span className="overline">LINK COLLECTION</span>
+              <h2 id="links-title">Your links, all in one place.</h2>
             </div>
             <button className="refresh-button" type="button" onClick={refreshLinks} disabled={isRefreshing || links.length === 0}>
               <Icon name="refresh" size={16} />
@@ -385,17 +470,22 @@ export default function UrlShortener() {
 
           <div className="links-toolbar">
             <div className="filter-tabs" role="group" aria-label="Filter links">
-              {['all', 'active', 'expired'].map((option) => (
+              {['all', 'active', 'expired'].map((option) => {
+                const count = option === 'all'
+                  ? links.length
+                  : links.filter((link) => getLinkStatus(link) === option).length;
+                const label = option === 'all' ? 'All links' : option === 'active' ? 'Active' : 'Expired';
+                return (
                 <button
                   className={filter === option ? 'filter-tab is-selected' : 'filter-tab'}
                   key={option}
                   type="button"
                   onClick={() => setFilter(option)}
                 >
-                  {option === 'all' ? 'All links' : option === 'active' ? 'Active' : 'Expired'}
-                  {option === 'all' && <span className="filter-count">{links.length}</span>}
+                  {label} · {count}
                 </button>
-              ))}
+                );
+              })}
             </div>
             <label className="search-wrap">
               <span className="sr-only">Search links</span>
@@ -440,8 +530,8 @@ export default function UrlShortener() {
             {visibleLinks.length === 0 && (
               <div className="empty-state">
                 <div className="empty-icon"><Icon name={links.length ? 'chart' : 'link'} size={22} /></div>
-                <h3>{links.length ? 'No links match that search' : 'A fresh start looks good on you.'}</h3>
-                <p>{links.length ? 'Try a different word or switch the filter.' : 'Your first short link is one URL away.'}</p>
+                <h3>{links.length ? 'No links match that search' : 'Nothing shortened yet.'}</h3>
+                <p>{links.length ? 'Try a different word or switch the filter.' : 'Your first short link starts here. Paste a URL above and we’ll take it from there.'}</p>
                 {!links.length && <a href="#create-link">Create your first link <Icon name="arrow" size={15} /></a>}
               </div>
             )}
